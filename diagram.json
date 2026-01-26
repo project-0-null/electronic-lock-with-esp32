@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "author": "Miguel Catelan Magalhães",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-s3-devkitc-1", "id": "esp", "top": 38.22, "left": 292.57, "attrs": {} },
+    { "type": "wokwi-lcd1602", "id": "lcd1", "top": -198.17, "left": -89.6, "attrs": {} },
+    { "type": "wokwi-membrane-keypad", "id": "keypad1", "top": -242, "left": 514.4, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": -30.1, "left": 134.2, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot2", "top": -116.5, "left": 268.6, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot3", "top": -116.5, "left": 374.2, "attrs": {} },
+    {
+      "type": "wokwi-text",
+      "id": "text1",
+      "top": -134.4,
+      "left": 393.6,
+      "attrs": { "text": "LDR" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 215.15,
+      "left": 451.2,
+      "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 200.4,
+      "left": 534.6,
+      "rotate": 90,
+      "attrs": { "color": "green" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:13", "lcd1:RS", "gold", [ "h0" ] ],
+    [ "lcd1:E", "esp:14", "gold", [ "v0" ] ],
+    [ "lcd1:K", "esp:GND.1", "black", [ "v0" ] ],
+    [ "lcd1:RW", "esp:GND.1", "black", [ "v0" ] ],
+    [ "lcd1:VSS", "esp:GND.1", "black", [ "v0" ] ],
+    [ "lcd1:VDD", "esp:5V", "red", [ "v0" ] ],
+    [ "lcd1:A", "esp:5V", "red", [ "v0" ] ],
+    [ "pot1:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "pot1:VCC", "esp:5V", "red", [ "v0" ] ],
+    [ "lcd1:V0", "pot1:SIG", "cyan", [ "v0" ] ],
+    [ "lcd1:D7", "esp:4", "blue", [ "v0" ] ],
+    [ "lcd1:D6", "esp:5", "blue", [ "v0" ] ],
+    [ "lcd1:D5", "esp:6", "blue", [ "v0" ] ],
+    [ "lcd1:D4", "esp:7", "blue", [ "v0" ] ],
+    [ "esp:39", "keypad1:C4", "blue", [ "h0" ] ],
+    [ "esp:37", "keypad1:C2", "blue", [ "h0" ] ],
+    [ "esp:36", "keypad1:C1", "blue", [ "h0" ] ],
+    [ "esp:35", "keypad1:R4", "blue", [ "h0" ] ],
+    [ "esp:0", "keypad1:R3", "blue", [ "h0" ] ],
+    [ "esp:45", "keypad1:R2", "blue", [ "h0" ] ],
+    [ "esp:48", "keypad1:R1", "blue", [ "h0" ] ],
+    [ "keypad1:C3", "esp:38", "blue", [ "v0" ] ],
+    [ "pot2:SIG", "esp:3V3.1", "red", [ "v19.2", "h-19.6", "v96" ] ],
+    [ "pot2:GND", "esp:3V3.1", "red", [ "v9.6", "h-19.2", "v105.6" ] ],
+    [ "pot2:VCC", "esp:1", "white", [ "v76.8", "h76", "v67.2" ] ],
+    [ "pot3:GND", "esp:GND.2", "black", [ "v115.2" ] ],
+    [ "pot3:SIG", "esp:1", "white", [ "v0" ] ],
+    [ "esp:47", "r1:1", "magenta", [ "v0" ] ],
+    [ "r1:2", "led1:C", "magenta", [ "v0" ] ],
+    [ "led1:A", "esp:GND.3", "magenta", [ "h-9.6", "v28.8" ] ]
+  ],
+  "dependencies": {}
+}

@@ -1,0 +1,9 @@
+.pio/
+.vscode/
+.git/
+test/
+include/
+lib/
+wokwi.toml
+wokwi-project.txt
+platformio.ini
