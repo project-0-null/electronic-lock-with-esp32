@@ -1,6 +1,6 @@
 # Smart Lock Access Control System (ESP32-S3)
 
-**Course:** Sistemas Embarcados I (Embedded Systems I)  
+**Course:** Sistemas Embarcados (Embedded Systems)  
 **Institution:** Universidade Federal do Espírito Santo (UFES)  
 **Student:** Miguel Catelan Magalhães  
 **Date:** 2026/1
@@ -33,19 +33,19 @@ Based on the project schematic:
 
 | Component       | ESP32-S3 GPIO | Description                     |
 | :---            | :---:         | :---                            |
-| **Lock (Output)** | `35`        | Activates the solenoid/LED      |
-| **LDR (Input)** | `9`         | Analog input for light sensing  |
-| **Backlight** | `21`        | PWM Output for LCD brightness   |
-| **Keypad Col 1** | `40`        | Output (Scanning)               |
-| **Keypad Col 2** | `39`        | Output (Scanning)               |
+| **Lock (Output)** | `47`        | Activates the solenoid/LED      |
+| **LDR (Input)** | `--`         | Analog input for light sensing  |
+| **Backlight** | `--`        | PWM Output for LCD brightness   |
+| **Keypad Col 1** | `36`        | Output (Scanning)               |
+| **Keypad Col 2** | `37`        | Output (Scanning)               |
 | **Keypad Col 3** | `38`        | Output (Scanning)               |
-| **Keypad Row 1** | `42`        | Input (Read)                    |
-| **Keypad Row 2** | `41`        | Input (Read)                    |
-| **Keypad Row 3** | `2`         | Input (Read)                    |
-| **Keypad Row 4** | `1`         | Input (Read)                    |
-| **LCD RS** | `8`         | Register Select                 |
-| **LCD E** | `3`         | Enable                          |
-| **LCD D4-D7** | `18-15`     | 4-bit Data Bus                  |
+| **Keypad Row 1** | `48`        | Input (Read)                    |
+| **Keypad Row 2** | `45`        | Input (Read)                    |
+| **Keypad Row 3** | `0`         | Input (Read)                    |
+| **Keypad Row 4** | `39`         | Input (Read)                    |
+| **LCD RS** | `13`         | Register Select                 |
+| **LCD E** | `14`         | Enable                          |
+| **LCD D4-D7** | `4,5,6,7`     | 4-bit Data Bus                  |
 
 ## 4. How It Works
 1.  **Initialization:** The system initializes the LCD in 4-bit mode and configures the GPIOs.
