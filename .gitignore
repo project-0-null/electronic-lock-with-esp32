@@ -3,7 +3,7 @@
 .git/
 test/
 include/
-lib/
+# lib/
 wokwi.toml
 wokwi-project.txt
 platformio.ini

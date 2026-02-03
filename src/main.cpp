@@ -221,9 +221,9 @@ void setup() {
   lcdSetCursor(0, 1);
   lcdPrint("Pressione:");
   
-  delay(2000);
-  lcdClear();
-  lcdPrint("Aguardando...");
+  // delay(2000);
+  // lcdClear();
+  // lcdPrint("insira a senha:");
 }
 
 void loop() {
@@ -245,6 +245,6 @@ void loop() {
     }
     
     // Pequeno delay para não ler muito rápido
-    delay(100);
+    //delay(100);
   }
 }
