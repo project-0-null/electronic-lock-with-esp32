@@ -1,24 +1,22 @@
 #include <Arduino.h>
 #include "lcd.h"
-//==================================================
-// configuração GPIO do LCD 
-//==================================================
-#define RS 3
-#define E 8
-#define D4 18
-#define D5 17
-#define D6 16
-#define D7 15
+
 
 // ============================================
 // FUNÇÕES DO LCD
 // ============================================
 
 void EnablePulse() {
-    digitalWrite(E, HIGH);
-    delayMicroseconds(1);
     digitalWrite(E, LOW);
-    delayMicroseconds(50);
+    delayMicroseconds(1);
+    digitalWrite(E, HIGH);
+    delayMicroseconds(1);//tempo de pulso
+    digitalWrite(E, LOW);
+    delayMicroseconds(100);//tempo para o comando ser processado
+    //       __
+    //______/  \______
+    //low   high  low 
+    //genial né?
 }
 
 void write4bits(uint8_t value){
@@ -31,7 +29,7 @@ void write4bits(uint8_t value){
 }
 
 void Sendbyte(uint8_t value, bool isData) {
-    digitalWrite(RS, isData ? HIGH : LOW); //RS =  if isData == true HIGH else LOW
+    digitalWrite(RS, isData ? HIGH : LOW); //RS =  if (isData == true){ HIGH;} else {LOW;}
     write4bits(value >> 4); //envia os 4 ultimos bits, pq aq ele arreda pra direita 4 vezes
     write4bits(value & 0x0F); //envia os 4 primeiros bits comparando com 0000 1111, e excluindo os ultimos 4 bits
 
@@ -52,8 +50,16 @@ void lcdSetCursor(uint8_t col, uint8_t line) {
 }
 
 void LCDclear(){
-    lcdCommand(0x01);//comando que limpa o display
+    lcdCommand(LCD_CLEAR_DISPLAY);//comando que limpa o display
+    delayMicroseconds(2000); //esse comando demora mais pra ser executado
 }
+
+void lcd_print(const char* str){
+    while(*str){
+        lcdWrite(*str++);
+    }
+}//funçao genial que eu achei no github, pq ai ao inves de letra por letra eu mando a string inteira como parametro
+
 
 void initializationLCD(){
     pinMode(RS, OUTPUT);

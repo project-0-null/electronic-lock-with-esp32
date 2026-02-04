@@ -28,8 +28,8 @@ const char teclas[NUM_LINHAS][NUM_COLUNAS] = {//coloquei assim pra poder verific
   {'*', '0', '#', 'D'}
 };
 
-unsigned long ultimoTempo[NUM_LINHAS][NUM_COLUNAS] = {0};
-bool ultimoEstado[NUM_LINHAS][NUM_COLUNAS] = {false};
+volatile unsigned long ultimoTempo[NUM_LINHAS][NUM_COLUNAS] = {0};
+volatile bool ultimoEstado[NUM_LINHAS][NUM_COLUNAS] = {false};
 
 static hw_timer_t * timer = NULL;
 
