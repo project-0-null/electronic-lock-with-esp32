@@ -38,7 +38,7 @@ void inicializa_teclado(){
     }
     //configura as lnhas como entrada
     for(int i=0;i<NUM_LINHAS;i++){
-        pinMode(linhas[i],INPUT);
+        pinMode(linhas[i],INPUT_PULLDOWN);
     }
 
     //inicializa e/ou limpa os arrays de controle 
@@ -60,13 +60,13 @@ void inicializa_teclado(){
 }
 
 void teclado_varredura(){
-    if(tecla_disponivel){
-        return; //se ja tem uma tecla disponivel, nao faz a varredura
-    }
+    // if(tecla_disponivel){
+    //     return; //se ja tem uma tecla disponivel, nao faz a varredura
+    // }
     //essa função aqui energiza as colunas e depois desenergiza, e ai usa a função detecta tecla pra verificar se foi pressionada(se teve saida na linha)
     for (int col=0; col < NUM_COLUNAS;col++){
         digitalWrite(colunas[col],HIGH);
-        delayMicroseconds(50);
+        // delayMicroseconds(50);
         for (int lin=0; lin<NUM_LINHAS;lin++){
             if( DetectaTecla(lin,col)){
                 ultimaTeclaPressionada = teclas[lin][col];
@@ -74,9 +74,9 @@ void teclado_varredura(){
                 //digitalWrite(colunas[col],LOW); //desenergiza a coluna apos detectar a tecla
                 return; //sai da função para evitar varredura desnecessária
             }
-            digitalWrite(colunas[col],LOW); //desenergiza a coluna apos a varredura
-            delayMicroseconds(50);
+            // delayMicroseconds(50);
         }
+        digitalWrite(colunas[col],LOW); //desenergiza a coluna apos a varredura
     }
 }
 
