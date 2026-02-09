@@ -1,3 +1,8 @@
+#ifndef LCD_H
+#define LCD_H
+
+#include <Arduino.h>
+
 //==================================================
 // configuração GPIO do LCD 
 //==================================================
@@ -24,3 +29,5 @@ void lcdSetCursor(uint8_t col, uint8_t line);
 void LCDclear();
 void initializationLCD();
 void lcd_print(const char* str);
+
+#endif
