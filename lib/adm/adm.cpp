@@ -15,29 +15,28 @@ extern char* senhas[];
 
 
 bool ler_nova_senha(char* destino){
-    memmset(destino, '\0', TAMANHO_SENHA);//limpa o destino antes de ler a nova senha
+    memset(destino, '\0', TAMANHO_SENHA);//limpa o destino antes de ler a nova senha
     int pos=0;
 
     while(true){
         char tecla = ler_teclado();
         if(tecla =='\0') {continue;} //ignora leituras vazias
 
-        if(tecla=='#') {return false;}
+        if(tecla=='#') {return false;}//cancela
 
         if(tecla == '*'){
-            if(pos == 4){
-                continue;//ignora '*' se a senha ja tiver 4 digitos
-            }
-
+            if(pos == 4){return true;} //confirma a senha se tiver 4 digitos
+            else{continue;}//ignora '*' se a senha ainda nao tiver 4 digitos
+        }
             if(pos<4){//limita a senha a 4 digitos
                 destino[pos] = tecla;//
-                lcdSetCursor(pos,1);
+                lcdSetCursor(pos+11,0);
                 lcdWrite(tecla);
                 pos++;
             }
         }
     }
-}
+
 
 void alterar_senha_usuario(){
     LCDclear();
@@ -58,7 +57,7 @@ void alterar_senha_usuario(){
     
     LCDclear();
     lcdSetCursor(0,0);
-    lcd_print("Nova_senha:");
+    lcd_print("Nova senha:");
     lcdSetCursor(0,1);
     lcd_print("*-confrima");
 
@@ -148,7 +147,7 @@ void ajustar_tempo_tranca(){
                 int tempo = tempo_s;
                 int digitos = (tempo>=100) ? 3 : (tempo >= 10) ? 2 : 1 ;//se tempo >=100 tem 3 digitos(100,230,546), se tempo >=10 tem 2 digitos(10,25,30), se nao ele tem um digito sṍ(1,4,6)
                 for (int i = digitos -1; i>=0;i--){
-                    lcdSetCursor(6 + i, i);//T-1,e-2,m-3,p-4,o-5,:-6
+                    lcdSetCursor(6 + i, 1);//T-1,e-2,m-3,p-4,o-5,:-6
                     lcdWrite('0'+(tempo%10));//pega o ultimo digito do tempo e escreve no lcd
                     tempo /=10;//remove o ultimo digito do tempo
                 }
