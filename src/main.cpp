@@ -5,7 +5,6 @@
 #include <lcd.h>
 #include <pwm.h>
 #include <adm.h>
-// #include <adm>
 #define tranca 42
 // ====================================================== 
 // funções da maquina de estados
@@ -128,9 +127,9 @@ void loop() {
                     lcd_print("bem-vindo");
                     lcdSetCursor(0,1);
                     lcd_print("Administrador");
-                    delay(5000);//5seg
+                    t_tranca();
                     LCDclear();
-                    //... 
+                    menu_adm();
                     break;
                 
                 case 0:
