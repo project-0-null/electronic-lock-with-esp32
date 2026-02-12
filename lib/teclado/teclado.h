@@ -5,7 +5,7 @@
 
 #define DEBOUNCE_MS 100
 #define NUM_LINHAS 4
-#define NUM_COLUNAS 4
+#define NUM_COLUNAS 3
 
 //==================================================
 // configuração do teclado matricial 4x4
@@ -18,7 +18,7 @@
 #define coluna1 36
 #define coluna2 37
 #define coluna3 38
-#define coluna4 39
+
 
 //=================================================
 // declaração de funções

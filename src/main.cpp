@@ -22,6 +22,8 @@ bool tranca_aberta = false; //variavel pra controlar o estado da tranca
 unsigned long tranca_abriu = 0; //variavel que pega a hora que a tranca abriu
 void t_tranca();
 
+int coluna=0;
+
 int verifica_senha(char* senha_entry){
     for (int i = 0; i < 3; i++) {
         if (strcmp(senha_entry, senhas[i]) == 0) {
@@ -53,8 +55,9 @@ void setup() {
     setupPWM();
     Serial.println("PWM inicializado");
 }
-bool tranca_aberta = false;
-int coluna=0;
+
+
+
 void loop() {
     // teclado_varredura();
     saidaPWM();
@@ -78,7 +81,7 @@ void loop() {
        lcdWrite('*');
        senha_entry[coluna] = tecla;
        coluna++;
-       if(coluna >= NUM_COLUNAS || tecla == '*'){ //se a coluna chegar no limite ou se a tecla for '*', verifica a senha
+       if(coluna >= 4 || tecla == '*'){ //se a coluna chegar no limite ou se a tecla for '*', verifica a senha
            coluna=0;
         
            switch (verifica_senha(senha_entry)) {
