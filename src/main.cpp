@@ -25,7 +25,7 @@ void t_tranca();
 int coluna=0;
 
 int verifica_senha(char* senha_entry){
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
         if (strcmp(senha_entry, senhas[i]) == 0) {
             return i + 1; // Retorna o número da senha (1, 2 ou 3)
         }
@@ -73,6 +73,15 @@ void loop() {
     }
 
     char tecla = ler_teclado();
+
+    if (tecla == '#') {
+            coluna = 0; // <--- O ERRO ESTAVA AQUI (Faltava zerar a coluna)
+            memset(senha_entry, '\0', sizeof(senha_entry)); // Limpa o array
+            LCDclear();
+            lcdSetCursor(0, 0);
+            lcd_print("Senha:");
+            return; // Sai do loop e não faz mais nada com essa tecla
+       }
     
     if (tecla != '\0') {
        Serial.print(tecla);//pra eu ver
@@ -136,12 +145,6 @@ void loop() {
                     break;
            }
            
-        }else if (tecla == '#'){
-            LCDclear();
-            lcd_print("Senha:");
-            for(int i=0;i<5;i++){
-            senha_entry[i]='\0';
-            };//zera a senha
         }
         
     }
