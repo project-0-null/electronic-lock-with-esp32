@@ -78,7 +78,7 @@ void alterar_senha_usuario(){
 void alterar_senha_adm(){
     LCDclear();
     lcdSetCursor(0,0);
-    lcd_print("Nova Senha ADM:");
+    lcd_print("Nova Senha:");
 
     if(ler_nova_senha(senha_ADM)){
         LCDclear();
@@ -160,7 +160,7 @@ void ajustar_tempo_tranca(){
         }
         if(tecla >= '0' && tecla <= '9' && pos < 3){//limita a entrada a numeros e a 3 digitos (999s = 16min, mais que o suficiente pra um tempo de tranca)
             tempo_s = tempo_s *10 + (tecla - '0');//adiciona o novo digito ao tempo
-            lcdSetCursor(pos,1);
+            lcdSetCursor(pos+9,0);
             lcdWrite(tecla);
             pos++;
         }
