@@ -11,8 +11,8 @@
 // configuração do teclado matricial 4x4
 //==================================================
 #define linha1 35
-#define linha2 36
-#define linha3 37
+#define linha2 37
+#define linha3 36
 #define linha4 38
 
 #define coluna1 41
