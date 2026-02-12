@@ -18,7 +18,8 @@ char senha_ADM[5] = "0000"; //senha do administrador
 char* senhas[5] = {senha_1, senha_2, senha_3, senha_ADM}; //array de ponteiros (:o) para as senhas
 
 unsigned long tempo_tranca = 5000; //tempo que a tranca fica aberta em milissegundos
-
+bool tranca_aberta = false; //variavel pra controlar o estado da tranca
+unsigned long tranca_abriu = 0; //variavel que pega a hora que a tranca abriu
 void t_tranca();
 
 int verifica_senha(char* senha_entry){
@@ -58,6 +59,16 @@ void loop() {
     // teclado_varredura();
     saidaPWM();
     
+    if (tranca_aberta && millis()-tranca_abriu >= tempo_tranca){
+        digitalWrite(tranca,LOW);
+        tranca_aberta = false;
+        LCDclear();
+        lcdSetCursor(0,0);
+        lcd_print("Senha:");
+        coluna=0;
+        memset(senha_entry, '\0', sizeof(senha_entry));//zera a senha
+    }
+
     char tecla = ler_teclado();
     
     if (tecla != '\0') {
@@ -78,7 +89,7 @@ void loop() {
                     lcdSetCursor(0,1);
                     lcd_print("Miguel");
                     t_tranca();
-                    memset(senha_entry, '\0', sizeof(senha_entry));
+                    
                     break;
                 case 2:
                     LCDclear();
@@ -87,7 +98,7 @@ void loop() {
                     lcdSetCursor(0,1);
                     lcd_print("Lorenzo");
                     t_tranca();
-                    memset(senha_entry, '\0', sizeof(senha_entry));
+                    
                     break;
                 case 3:
                     LCDclear();
@@ -96,7 +107,7 @@ void loop() {
                     lcdSetCursor(0,1);
                     lcd_print("Tais");
                     t_tranca();
-                    memset(senha_entry, '\0', sizeof(senha_entry));
+                    
                     break;
                 case 4:
                     memset(senha_entry, '\0', sizeof(senha_entry));
@@ -115,7 +126,7 @@ void loop() {
                     lcdSetCursor(0,0);
                     lcd_print("senha invalida");
                     memset(senha_entry, '\0', sizeof(senha_entry));
-                    delay(3000);//1seg
+                    delay(3000);//3seg
                     LCDclear();
                     lcdSetCursor(0,0);
                     lcd_print("Senha:");
@@ -135,8 +146,8 @@ void loop() {
 
 void t_tranca(){
     tranca_aberta = true;
+    tranca_abriu = millis(); //pega o tempo atual
     digitalWrite(tranca,HIGH);
-    delay(tempo_tranca);
-    digitalWrite(tranca,LOW);
+    
 }
 
