@@ -1,33 +1,72 @@
 #include <Arduino.h>
 #include "pwm.h"
 
+static int ultimaLeitura = -1;    // Última leitura do LDR
+
+hw_timer_t *temp = NULL;           // Ponteiro para o temporizador hardware
+volatile int ultimoDuty = -1;       // Último duty cycle aplicado (volatile pois é acessado na ISR)
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED; // Mutex para proteção de seção
 //inclui a função de leitura do pwm
+
 int leituraLDR() {
-  int leitura = analogRead(POT_INPUT_PIN);
-  return leitura;
+  return analogRead(POT_INPUT_PIN);
 }
 
 //configura o pwm
 void setupPWM() {
   ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_RESOLUTION); // Configura o canal primeiro
   ledcAttachPin(LED_OUTPUT_PIN, PWM_CHANNEL);       // Anexa o pino ao canal depois
-}
+  // Inicia com brilho médio
+  int dutyInicial = (DUTY_MIN + DUTY_MAX) / 2;
+  ledcWrite(PWM_CHANNEL, dutyInicial);
+  ultimoDuty = dutyInicial;
 
-void saidaPWM() {
-  int duty = map(leituraLDR(), 0, 4095, 0, MAX_DUTY_CYCLE);
-  static int uDuty = -1; 
-  float VIO = (duty / (float)MAX_DUTY_CYCLE) * Vk_max; // Calcula a tensão de saída do PWM
-  float Vk = VIO / Gain + Vbe; // Calcula a tensão no LDR usando o ganho e a tensão de base do transistor
-  // Serial.print("VIO: ");
-  // Serial.print(VIO);
-  // Serial.print(" Vk: ");
-  // Serial.println(Vk);
+  Serial.println("PWM configurado com sucesso");
+}
+// Atualiza o brilho do LCD com monitoramento eficiente
+void atualizaBrilhoLCD() {
+  int leitura = leituraLDR();
   
-  if (abs(duty - uDuty) > 64) { // Histerese aumentada para S3, ou seja, só atualiza o PWM se a mudança for significativa
+  // Só processa se houve mudança significativa (threshold)
+  if (abs(leitura - ultimaLeitura) < ADC_THRESHOLD) {
+    return; // Sai da função sem fazer nada - economia de processamento!
+  }
+  
+  ultimaLeitura = leitura;
+  
+  // IMPORTANTE: Invertido porque K é o catodo do LCD
+  // Duty alto = menos brilho | Duty baixo = mais brilho
+  // Mapeia com limites para garantir brilho mínimo
+  int duty = map(leitura, 0, 4095, DUTY_MIN, DUTY_MAX);
+  
+  // Garante que duty fica dentro dos limites (segurança extra)
+  duty = constrain(duty, DUTY_MIN, DUTY_MAX);
+  
+  // Histerese adicional: só atualiza se mudança > 30
+  if (abs(duty - ultimoDuty) > 30) {
     ledcWrite(PWM_CHANNEL, duty);
-    uDuty = duty;
-  //   Serial.print("Brilho: "); 
-  //   Serial.println(duty);
-  // }
+    ultimoDuty = duty;
+    
+    // Calcula brilho percentual para exibição (invertido)
+    int brilhoPercent = map(duty, DUTY_MAX, DUTY_MIN, BRILHO_MINIMO_PERCENT, BRILHO_MAXIMO_PERCENT);
+    
+    // Calcula tensões para debug
+    float VIO = (duty / (float)MAX_DUTY_CYCLE) * Vk_max;
+    float Vk = VIO / Gain + Vbe;
+    
+    // Debug info
+    /*Serial.print("LDR: ");
+    Serial.print(leitura);
+    Serial.print(" | Duty: ");
+    Serial.print(duty);
+    Serial.print(" | Brilho: ");
+    Serial.print(brilhoPercent);
+    Serial.print("% | VIO: ");
+    Serial.print(VIO, 2);
+    Serial.print("V | Vk: ");
+    Serial.print(Vk, 2);
+    Serial.println("V");
+    */
   }
 }
+
