@@ -6,7 +6,7 @@
 #include <pwm.h>
 #include <adm.h>
 // #include <adm>
-#define tranca 47
+#define tranca 42
 // ====================================================== 
 // funções da maquina de estados
 // ======================================================
@@ -60,7 +60,7 @@ void setup() {
 
 void loop() {
     // teclado_varredura();
-    saidaPWM();
+    atualizaBrilhoLCD();
     
     if (tranca_aberta && millis()-tranca_abriu >= tempo_tranca){
         digitalWrite(tranca,LOW);
@@ -78,7 +78,7 @@ void loop() {
        Serial.print(tecla);//pra eu ver
     //    Serial.print(senha_entry);
        lcdSetCursor(coluna,1);
-       lcdWrite('*');
+       lcdWrite(tecla);
        senha_entry[coluna] = tecla;
        coluna++;
        if(coluna >= 4 || tecla == '*'){ //se a coluna chegar no limite ou se a tecla for '*', verifica a senha
