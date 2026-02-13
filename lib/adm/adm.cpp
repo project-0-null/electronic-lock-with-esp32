@@ -12,6 +12,18 @@
 //funções do menu adm
 //=======================================================
 
+bool senha_ja_existe(char* nova, char* ignorar){
+    // percorre todas as senhas do array
+    for(int i = 0; i < NUM_USUARIOS + 1; i++){
+        // ignora a própria senha do usuário que está sendo alterado
+        // pra não barrar quem quer manter a mesma senha
+        if(senhas[i] == ignorar) continue;
+        
+        if(strcmp(nova, senhas[i]) == 0) return true; // achou igual
+    }
+    return false; // não achou nenhuma igual
+}
+
 
 bool ler_nova_senha(char* destino){
     memset(destino, '\0', TAMANHO_SENHA);//limpa o destino antes de ler a nova senha
@@ -27,15 +39,15 @@ bool ler_nova_senha(char* destino){
             if(pos == 4){return true;} //confirma a senha se tiver 4 digitos
             else{continue;}//ignora '*' se a senha ainda nao tiver 4 digitos
         }
-            if(pos<4 && tecla >= '0' && tecla <= '9'){//limita a senha a 4 digitos
+        if(pos<4 && tecla >= '0' && tecla <= '9'){//limita a senha a 4 digitos
 
-                destino[pos] = tecla;//
-                lcdSetCursor(pos+11,0);
-                lcdWrite(tecla);
-                pos++;
-            }
+            destino[pos] = tecla;//
+            lcdSetCursor(pos+11,0);
+            lcdWrite(tecla);
+            pos++;
         }
     }
+}
 
 
 void alterar_senha_usuario(){
@@ -62,16 +74,26 @@ void alterar_senha_usuario(){
     lcd_print("*-confrima");
 
 
-    if(ler_nova_senha(alvo)){
-        LCDclear();
-        lcdSetCursor(0,0);
-        lcd_print("Salvo!");
+    char temp[TAMANHO_SENHA];
+    if(ler_nova_senha(temp)){
+        if(senha_ja_existe(temp,alvo)){
+            LCDclear();
+            lcdSetCursor(0,0);
+            lcd_print("Senha ja existe");
+            delay(1000);
+        }else{
+            memcpy(alvo,temp,TAMANHO_SENHA);//copia a nova senha pro destino
+            LCDclear();
+            lcdSetCursor(0,0);
+            lcd_print("salvo");
+            delay(1000);
+        }
     }else{
         LCDclear();
         lcdSetCursor(0,0);
         lcd_print("Cancelado");
+        delay(1000);
     }
-    delay(2000);
     
 }
 
@@ -80,16 +102,28 @@ void alterar_senha_adm(){
     lcdSetCursor(0,0);
     lcd_print("Nova Senha:");
 
-    if(ler_nova_senha(senha_ADM)){
-        LCDclear();
-        lcdSetCursor(0,0);
-        lcd_print("Salvo!");
-    }else{
+    char temp[TAMANHO_SENHA];
+    if(ler_nova_senha(temp)){
+
+        if(senha_ja_existe(temp, senha_ADM)){
+            LCDclear();
+            lcdSetCursor(0,0);
+            lcd_print("Senha ja existe!");
+            delay(2000);
+        } else {
+            memcpy(senha_ADM, temp, TAMANHO_SENHA);
+            LCDclear();
+            lcdSetCursor(0,0);
+            lcd_print("Salvo!");
+            delay(2000);
+        }
+
+    } else {
         LCDclear();
         lcdSetCursor(0,0);
         lcd_print("Cancelado");
+        delay(2000);
     }
-    delay(2000);
 }
 
 void apagar_senha_usuario(){
@@ -180,7 +214,7 @@ void menu_adm(){
         lcdSetCursor(0,1);
         lcd_print("2-tranca 4-abrir ");
         char tecla = '\0';//placa de pare
-        while(tecla == '\0'){tecla = ler_teclado();} //espera por uma entrada valida
+        while(tecla == '\0'){tecla = ler_teclado();atualizaBrilhoLCD();} //espera por uma entrada valida
     
 
         //if(tecla == '3') {return;}
@@ -195,7 +229,7 @@ void menu_adm(){
                 lcdSetCursor(0,1);
                 lcd_print("2-apagar 4-volta");
                 tecla = '\0';//placa de pare
-                while(tecla == '\0'){tecla = ler_teclado();} //espera por uma entrada valida
+                while(tecla == '\0'){tecla = ler_teclado();atualizaBrilhoLCD();} //espera por uma entrada valida
                 //tecla = ler_teclado();
 
                 if(tecla == '1'){
