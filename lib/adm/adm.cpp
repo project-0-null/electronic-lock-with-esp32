@@ -4,10 +4,6 @@
 #include <adm.h>
 #include <pwm.h>
 
-// ====================================================== 
-// variaveis gloabis 
-// ======================================================
-
 // ======================================================
 //funções do menu adm
 //=======================================================
@@ -15,13 +11,12 @@
 bool senha_ja_existe(char* nova, char* ignorar){
     // percorre todas as senhas do array
     for(int i = 0; i < NUM_USUARIOS + 1; i++){
-        // ignora a própria senha do usuário que está sendo alterado
-        // pra não barrar quem quer manter a mesma senha
-        if(senhas[i] == ignorar) continue;
+        // ignora a própria senha do usuário que está sendo alterado, pra não barrar quem quer manter a mesma senha
+        if(senhas[i] == ignorar){continue;}
         
-        if(strcmp(nova, senhas[i]) == 0) return true; // achou igual
+        if(strcmp(nova, senhas[i]) == 0){return true;} //igual
     }
-    return false; // não achou nenhuma igual
+    return false; //nenhum igual
 }
 
 
@@ -215,9 +210,6 @@ void menu_adm(){
         lcd_print("2-tranca 4-abrir ");
         char tecla = '\0';//placa de pare
         while(tecla == '\0'){tecla = ler_teclado();atualizaBrilhoLCD();} //espera por uma entrada valida
-    
-
-        //if(tecla == '3') {return;}
         
         switch (tecla){
 

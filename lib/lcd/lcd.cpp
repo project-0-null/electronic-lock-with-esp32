@@ -16,7 +16,6 @@ void EnablePulse() {
     //       __
     //______/  \______
     //low   high  low 
-    //genial né?
 }
 
 void write4bits(uint8_t value){
@@ -34,6 +33,7 @@ void Sendbyte(uint8_t value, bool isData) {
     write4bits(value & 0x0F); //envia os 4 primeiros bits comparando com 0000 1111, e excluindo os ultimos 4 bits
 
 }
+
 //caso eu queira escrever um caractere ou um comando 
 void lcdWrite(char c) {Sendbyte(c, true);}
 void lcdCommand(uint8_t cmd) {Sendbyte(cmd, false);}
@@ -58,7 +58,7 @@ void lcd_print(const char* str){
     while(*str){
         lcdWrite(*str++);
     }
-}//funçao genial que eu achei no github, pq ai ao inves de letra por letra eu mando a string inteira como parametro
+}
 
 
 void initializationLCD(){

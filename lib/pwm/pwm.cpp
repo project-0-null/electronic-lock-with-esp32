@@ -54,19 +54,6 @@ void atualizaBrilhoLCD() {
     float VIO = (duty / (float)MAX_DUTY_CYCLE) * Vk_max;
     float Vk = VIO / Gain + Vbe;
     
-    // Debug info
-    /*Serial.print("LDR: ");
-    Serial.print(leitura);
-    Serial.print(" | Duty: ");
-    Serial.print(duty);
-    Serial.print(" | Brilho: ");
-    Serial.print(brilhoPercent);
-    Serial.print("% | VIO: ");
-    Serial.print(VIO, 2);
-    Serial.print("V | Vk: ");
-    Serial.print(Vk, 2);
-    Serial.println("V");
-    */
   }
 }
 

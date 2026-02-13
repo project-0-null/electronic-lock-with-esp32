@@ -1,4 +1,8 @@
 #include "teclado.h"
+//==========================================================
+//variaveis
+//==========================================================
+
 
 //controle para verificação para o debounce
 volatile unsigned long ultimoTempo[NUM_LINHAS][NUM_COLUNAS] = {0};
@@ -62,7 +66,7 @@ void inicializa_teclado(){
 }
 
 
-void IRAM_ATTR onTimer(){
+void IRAM_ATTR onTimer(){//coloquei aqui porque é a função de varredura, tem que ser rápida e sem bloqueios
 
     bool alguma_tecla_detectada_no_ciclo = false;
     char tecla_candidata = '\0';

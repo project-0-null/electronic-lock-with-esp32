@@ -1,5 +1,3 @@
-//aqui a gente vai fazer basicamente uma maquina de estados pra fazer o menu e etc
-//obrigado eliete 🙏
 #include <Arduino.h>
 #include <teclado.h>
 #include <lcd.h>
@@ -22,6 +20,8 @@ unsigned long tranca_abriu = 0; //variavel que pega a hora que a tranca abriu
 void t_tranca();
 
 int coluna=0;
+
+//==========================================================================
 
 int verifica_senha(char* senha_entry){
     for (int i = 0; i < 4; i++) {
@@ -86,7 +86,7 @@ void loop() {
        Serial.print(tecla);//pra eu ver
     //    Serial.print(senha_entry);
        lcdSetCursor(coluna,1);
-       lcdWrite(tecla);
+       lcdWrite('*'); //imprime '*' a cada digito digitado, pra n mostrar a senha
        senha_entry[coluna] = tecla;
        coluna++;
        if(coluna >= 4 || tecla == '*'){ //se a coluna chegar no limite ou se a tecla for '*', verifica a senha
@@ -128,11 +128,10 @@ void loop() {
                     lcdSetCursor(0,1);
                     lcd_print("Administrador");
                     delay(2000);
-                    // t_tranca();
                     LCDclear();
                     menu_adm();
                     LCDclear();
-                   memset(senha_entry, '\0', sizeof(senha_entry));
+                    memset(senha_entry, '\0', sizeof(senha_entry));
                     coluna = 0;
                     LCDclear();
                     lcdSetCursor(0,0);
