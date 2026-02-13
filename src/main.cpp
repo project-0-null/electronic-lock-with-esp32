@@ -14,7 +14,7 @@ char senha_1[5] = "1234"; //senha do miguel
 char senha_2[5] = "4321"; //senha da lorenzo
 char senha_3[5] = "5678"; //senha da tais
 char senha_ADM[5] = "0000"; //senha do administrador
-char* senhas[5] = {senha_1, senha_2, senha_3, senha_ADM}; //array de ponteiros (:o) para as senhas
+char* senhas[4] = {senha_1, senha_2, senha_3, senha_ADM}; //array de ponteiros (:o) para as senhas
 
 unsigned long tempo_tranca = 5000; //tempo que a tranca fica aberta em milissegundos
 bool tranca_aberta = false; //variavel pra controlar o estado da tranca
@@ -127,9 +127,16 @@ void loop() {
                     lcd_print("bem-vindo");
                     lcdSetCursor(0,1);
                     lcd_print("Administrador");
-                    t_tranca();
+                    delay(2000);
+                    // t_tranca();
                     LCDclear();
                     menu_adm();
+                    LCDclear();
+                   memset(senha_entry, '\0', sizeof(senha_entry));
+                    coluna = 0;
+                    LCDclear();
+                    lcdSetCursor(0,0);
+                    lcd_print("Senha:");//quando volta pra main a gnt "recria " o processo de senha
                     break;
                 
                 case 0:

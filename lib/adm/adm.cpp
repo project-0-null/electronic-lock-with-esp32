@@ -2,12 +2,11 @@
 #include <teclado.h>
 #include <lcd.h>
 #include <adm.h>
+#include <pwm.h>
 
 // ====================================================== 
 // variaveis gloabis 
 // ======================================================
-
-extern char* senhas[];
 
 // ======================================================
 //funções do menu adm
@@ -28,7 +27,8 @@ bool ler_nova_senha(char* destino){
             if(pos == 4){return true;} //confirma a senha se tiver 4 digitos
             else{continue;}//ignora '*' se a senha ainda nao tiver 4 digitos
         }
-            if(pos<4){//limita a senha a 4 digitos
+            if(pos<4 && tecla >= '0' && tecla <= '9'){//limita a senha a 4 digitos
+
                 destino[pos] = tecla;//
                 lcdSetCursor(pos+11,0);
                 lcdWrite(tecla);
@@ -173,16 +173,17 @@ void menu_adm(){
     while(ler_teclado() != '\0'); //limpa o buffer de teclas
 
     while(true){
+        atualizaBrilhoLCD();
         LCDclear();
         lcdSetCursor(0,0);
-        lcd_print("1-senhas  3-voltar");
+        lcd_print("1-senha 3-voltar");
         lcdSetCursor(0,1);
-        lcd_print("2-tranca ");
+        lcd_print("2-tranca 4-abrir ");
         char tecla = '\0';//placa de pare
         while(tecla == '\0'){tecla = ler_teclado();} //espera por uma entrada valida
     
 
-        if(tecla == '3') {return;}
+        //if(tecla == '3') {return;}
         
         switch (tecla){
 
@@ -192,7 +193,7 @@ void menu_adm(){
                 lcdSetCursor(0,0);
                 lcd_print("1-alterar 3-adm");
                 lcdSetCursor(0,1);
-                lcd_print("2-apagar");
+                lcd_print("2-apagar 4-volta");
                 tecla = '\0';//placa de pare
                 while(tecla == '\0'){tecla = ler_teclado();} //espera por uma entrada valida
                 //tecla = ler_teclado();
@@ -203,6 +204,8 @@ void menu_adm(){
                     apagar_senha_usuario();
                 }else if(tecla == '3'){
                     alterar_senha_adm();
+                }else if (tecla == '4'){
+                    continue;
                 }else{
                     return;
                 }
@@ -215,6 +218,19 @@ void menu_adm(){
 
             case '3':
                 //aqui tem que ter um processo pra sair do menu de adm e voltar pro menu normal
+                LCDclear();
+                return;
+                
+            case '4':
+                //aqui tem que ter um processo pra abrir a tranca no menu de adm
+                digitalWrite(tranca, HIGH);
+                LCDclear();
+                lcdSetCursor(0,0);
+                lcd_print("Bem-vindo");
+                lcdSetCursor(0,1);
+                lcd_print("administrador");
+                delay(tempo_tranca);
+                digitalWrite(tranca, LOW);
                 break;
 
             default:
