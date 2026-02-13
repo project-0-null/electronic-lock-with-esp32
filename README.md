@@ -1,98 +1,61 @@
-Aqui está uma versão formatada para um arquivo `README.md` do GitHub, consolidando as informações do código fonte, do diagrama de simulação e da especificação do projeto.
-
-***
-
-# Fechadura Eletrônica com ESP32 (Electronic Lock)
-
-Este repositório contém o código-fonte e a documentação de um sistema de controle de acesso (fechadura eletrônica) desenvolvido para a disciplina de **Sistemas Embarcados I** da **UFES** (Universidade Federal do Espírito Santo).
-
-O projeto utiliza um microcontrolador **ESP32-S3** para controlar uma tranca magnética, interfaceando com o usuário através de um teclado matricial e um display LCD 16x2.
-
-## 🎯 Objetivo e Intuito
-
-O principal objetivo deste projeto é pedagógico: implementar drivers de periféricos **"do zero" (bare metal)**, sem a utilização de bibliotecas externas de alto nível (como `LiquidCrystal` ou `Keypad`).
-
-O código foi estruturado para demonstrar o domínio sobre:
-*   **Protocolos de Comunicação:** Implementação manual do protocolo 4-bit para displays LCD baseados no controlador HD44780.
-*   **Gerenciamento de Tempo e Interrupções:** Uso de *Hardware Timers* do ESP32 para varredura de teclado não-bloqueante.
-*   **Manipulação de GPIOs:** Leitura e escrita direta em registradores e pinos digitais.
-*   **Máquina de Estados:** Lógica de controle de acesso e menus de configuração.
-
-## ⚙️ Funcionalidades
-
-Baseado na análise do firmware, o sistema possui as seguintes características:
-
-*   **Autenticação de Usuários:** Suporte para múltiplas senhas (3 usuários comuns e 1 administrador).
-*   **Feedback Visual:** Exibição de mensagens personalizadas no LCD ("Bem-vindo Miguel", "Bem-vindo Lorenzo", etc.) e mascaramento de senha com asteriscos (`*`).
-*   **Controle de Hardware:** Acionamento de uma tranca magnética (via transistor/relé) mediante senha correta.
-*   **Menu de Administrador:** Acesso diferenciado para configurações (Menu: "1-senha 2-Tranca") ao digitar a senha de admin.
-*   **Tratamento de Debounce:** Algoritmo robusto para evitar leituras falsas ou múltiplas no teclado.
-
-## 🛠️ Pinagem (Hardware Mapping)
-
-A pinagem abaixo foi extraída do código-fonte e do arquivo de configuração do simulador (`diagram.json`).
-
-### Microcontrolador: ESP32-S3
-
-| Periférico | Função | Pino ESP32 (GPIO) | Detalhes |
-| :--- | :--- | :--- | :--- |
-| **Tranca** | Atuador | **GPIO 47** | Nível ALTO libera a tranca (via TIP122) |
-| **LCD 16x2** | RS (Register Select) | **GPIO 3** | Controle de comando/dados |
-| | Enable (E) | **GPIO 8** | Pulso de clock para o LCD |
-| | Dados D4 | **GPIO 18** | Barramento de dados 4-bit |
-| | Dados D5 | **GPIO 17** | Barramento de dados 4-bit |
-| | Dados D6 | **GPIO 16** | Barramento de dados 4-bit |
-| | Dados D7 | **GPIO 15** | Barramento de dados 4-bit |
-| **Teclado** | Linha 1 | **GPIO 48** | Entrada com Pull-down |
-| | Linha 2 | **GPIO 45** | Entrada com Pull-down |
-| | Linha 3 | **GPIO 0** | Entrada com Pull-down |
-| | Linha 4 | **GPIO 35** | Entrada com Pull-down |
-| | Coluna 1 | **GPIO 36** | Saída para varredura |
-| | Coluna 2 | **GPIO 37** | Saída para varredura |
-| | Coluna 3 | **GPIO 38** | Saída para varredura |
-| | Coluna 4 | **GPIO 39** | Saída para varredura |
-| **Sensores** | LDR / Pot | **GPIO 1** | Leitura Analógica (Controle Backlight) |
-
-> **Nota de Hardware:** O projeto físico utiliza um buffer **74HC245** para isolar o teclado do ESP32 e garantir a integridade dos sinais, além de transistores para o acionamento de potência da tranca e do backlight.
-
-## 📂 Estrutura do Código
-
-O projeto é modularizado para facilitar a manutenção e leitura:
-
-### `main.ino`
-Contém a lógica principal da aplicação. Inicializa os periféricos, gerencia o buffer de senha (`senha_entry`) e verifica as credenciais comparando com as strings armazenadas. Decide qual mensagem exibir no LCD e quando acionar o pino da tranca.
-
-### `lcd.h`
-Driver personalizado para o display LCD.
-*   **`EnablePulse()`**: Gera o pulso de clock manual necessário para o controlador do LCD.
-*   **`write4bits()`** e **`Sendbyte()`**: Implementa a lógica de bit-shift para enviar bytes divididos em dois *nibbles* (4 bits), permitindo o uso de menos pinos.
-*   **`initializationLCD()`**: Executa a sequência exata de comandos (datasheet) para inicializar o display em modo 4 bits.
-
-### `teclado.h`
-Driver para o teclado matricial.
-*   **Interrupção por Timer:** Utiliza `timerAttachInterrupt` para varrer o teclado a cada 10ms, garantindo que o loop principal não fique bloqueado.
-*   **`DetectaTecla()`**: Implementa lógica de *debounce* baseada em tempo (`millis`) para filtrar ruídos mecânicos das teclas.
-*   **Varredura:** Alterna o nível lógico das colunas e lê as linhas para identificar a coordenada (X,Y) do botão pressionado.
-
-## 🚀 Como Utilizar
-
-1.  **Montagem:** Realize as conexões conforme a tabela de pinagem acima.
-2.  **Upload:** Carregue o código no ESP32-S3 via Arduino IDE.
-3.  **Operação:**
-    *   O LCD exibirá `Senha:`.
-    *   Digite a senha utilizando o teclado numérico.
-    *   Pressione `*` ou complete 4 dígitos para validar.
-
-### 🔐 Credenciais Padrão (Hardcoded)
-
-Conforme definido em `main.ino`:
-
-| Usuário | Senha | Ação |
-| :--- | :--- | :--- |
-| **Miguel** | `1234` | Libera Tranca + Mensagem Personalizada |
-| **Lorenzo** | `5678` | Libera Tranca + Mensagem Personalizada |
-| **Tais** | `4321` | Libera Tranca + Mensagem Personalizada |
-| **Admin** | `0000` | Acesso ao Menu de Configuração |
-
----
-*Projeto desenvolvido por [Miguel e Lorenzo] para a disciplina de Sistemas Embarcados I.*
+Documentação Técnica Abrangente: Sistema de Controle de Acesso com Iluminação Adaptativa (ESP32-S3)1. Introdução e Escopo do Projeto1.1 Visão Geral do SistemaEste relatório técnico constitui a documentação definitiva e exaustiva (README) para o projeto final da disciplina de Sistemas Embarcados I (ELE15942-2025/2). O projeto consiste no desenvolvimento, implementação e validação de um firmware para o microcontrolador ESP32-S3, orquestrando um sistema de controle de acesso físico (fechadura inteligente) com recursos avançados de interface homem-máquina (IHM) e gestão energética ambiental.O sistema foi projetado para operar sem a dependência de bibliotecas de alto nível pré-existentes para os periféricos principais, exigindo o desenvolvimento de drivers proprietários para o controle do Display LCD (baseado no controlador HD44780) e para a leitura de um teclado matricial 3x4. Além da funcionalidade primária de segurança — que envolve a autenticação de usuários via senha e o acionamento de uma tranca magnética de alta potência —, o sistema integra um subsistema de iluminação adaptativa. Este subsistema monitora a luminosidade do ambiente em tempo real através de um sensor LDR (Light Dependent Resistor) e ajusta o duty cycle do backlight do display via PWM (Pulse Width Modulation), garantindo legibilidade ideal e eficiência energética.A arquitetura do firmware adota uma abordagem de "Super-Loop" com Máquina de Estados Finitos (FSM) para o gerenciamento de navegação e controle, suportada por interrupções de hardware e temporização precisa para tarefas críticas, como a varredura de entrada e o controle de atuadores.1.2 Objetivos de EngenhariaOs objetivos técnicos alcançados com esta implementação incluem:Domínio de GPIOs e Protocolos Paralelos: Implementação do protocolo de comunicação de 4 bits para displays LCD alfanuméricos, compreendendo tempos de setup, hold e sequências de inicialização de hardware.Processamento de Sinais Digitais e Analógicos: Leitura e debouncing de matrizes de chaves e conversão analógico-digital (ADC) com filtragem de histerese para controle de estabilidade luminosa.Eletrônica de Potência e Interfaceamento: Controle de cargas indutivas (solenoide de 12V) utilizando transistores Darlington (TIP122) e isolamento lógico via buffers (74HC245), protegendo o núcleo de 3.3V do ESP32-S3.Arquitetura de Software Embarcado: Criação de um sistema robusto de menus hierárquicos, gestão de memória volátil para credenciais e lógica de segurança contra falhas.2. Especificações de Hardware e Detalhamento da PinagemA integridade do sistema depende de um mapeamento rigoroso entre os pinos de I/O do ESP32-S3 e os periféricos externos. O hardware utiliza uma combinação de níveis lógicos de 3.3V (nativo do ESP32), 5V (para o LCD) e 12V (para a tranca magnética), exigindo circuitos de interfaceamento cuidadosos para evitar danos ao microcontrolador.2.1 Mapeamento Completo de GPIOs (Pinout)A tabela a seguir apresenta a definição exata de todos os pinos utilizados, suas funções elétricas e a lógica de operação associada, conforme extraído dos cabeçalhos do código fonte (lcd.h, teclado.h, pwm.h) e das especificações do esquema elétrico.PeriféricoFunção EspecíficaPino ESP32-S3DireçãoNível Lógico / ProtocoloDescrição TécnicaDisplay LCDRS (Register Select)GPIO 3SaídaDigital (3.3V)Seleciona entre Registro de Comando (LOW) e Dados (HIGH).E (Enable)GPIO 8SaídaDigital (3.3V)O pulso de falling edge (borda de descida) latcha os dados no controlador do LCD.D4 (Data Bit 4)GPIO 18SaídaDigital (3.3V)Bit menos significativo (LSB) no modo de operação de 4 bits.D5 (Data Bit 5)GPIO 17SaídaDigital (3.3V)Bit de dados.D6 (Data Bit 6)GPIO 16SaídaDigital (3.3V)Bit de dados.D7 (Data Bit 7)GPIO 15SaídaDigital (3.3V)Bit mais significativo (MSB). Usado também para checagem de Busy Flag (não implementado neste driver).Backlight (K)GPIO 4SaídaPWM (LEDC Ch 0)Controle de brilho via modulação de largura de pulso na base do transistor BC548.TecladoLinha 1GPIO 35EntradaDigitalLinha da matriz. Lida durante a varredura.Linha 2GPIO 37EntradaDigitalLinha da matriz.Linha 3GPIO 36EntradaDigitalLinha da matriz.Linha 4GPIO 38EntradaDigitalLinha da matriz.Coluna 1GPIO 41SaídaDigitalColuna energizada sequencialmente durante a varredura.Coluna 2GPIO 40SaídaDigitalColuna da matriz.Coluna 3GPIO 39SaídaDigitalColuna da matriz.AtuadoresControle TrancaGPIO 42SaídaDigital (3.3V)Sinal de ativação para a base do TIP122 (via buffer 74HC245). Lógica Ativa Alta.SensoresLDR (Luminosidade)GPIO 9EntradaAnalógico (ADC)Entrada do divisor de tensão. Mede a variação de resistência dependente da luz.2.2 Análise do Circuito de Interface e ProteçãoO projeto de hardware não conecta os periféricos diretamente ao ESP32-S3 de forma indiscriminada; ele utiliza estágios intermediários cruciais para a robustez do sistema.2.2.1 Buffer e Isolamento (74HC245)O circuito integrado 74HC245 atua como um transceptor de barramento octal. Neste projeto, ele é configurado unidirecionalmente para funcionar como um buffer de corrente e um level-shifter (embora a alimentação seja 3.3V, ele garante a integridade do sinal).Função no Teclado: Isola as linhas de varredura. Isso é vital para proteger os GPIOs do ESP32 contra descargas eletrostáticas (ESD) provenientes do contato humano com as teclas e para garantir que capacitâncias parasitas dos cabos do teclado não deformem os sinais digitais rápidos da varredura.Função na Tranca: O GPIO 42 aciona uma das entradas do 74HC245. A saída correspondente do buffer é quem efetivamente entrega a corrente para a base do transistor de potência. Isso garante que o microcontrolador não precise fornecer correntes acima de sua capacidade nominal (que é limitada a poucos miliampères por pino).2.2.2 Estágio de Potência (TIP122 e Solenoide)A tranca magnética é uma carga indutiva que opera a 12V e consome entre 700mA e 850mA. O acionamento direto via microcontrolador é impossível.Transistor TIP122: Trata-se de um par Darlington NPN. Sua principal característica é o altíssimo ganho de corrente ($\beta \approx 1000$). Isso permite que uma corrente minúscula vinda do buffer 74HC245 sature o transistor, permitindo a condução de quase 1A entre Coletor e Emissor para ativar a tranca.Diodo de Roda Livre (Flyback): Um diodo (1N4004) está conectado em antiparalelo com a bobina da tranca. Sem este componente, o desligamento súbito da tranca (quando o campo magnético colapsa) geraria um pico de tensão reversa (Força Contra-Eletromotriz) de centenas de volts, que destruiria instantaneamente o transistor TIP122 e poderia propagar-se até o ESP32. O diodo oferece um caminho para essa corrente recircular e se dissipar.2.2.3 Sensor LDR e Divisor de TensãoO sensor de luz (LDR) varia sua resistência inversamente à luminosidade incidente. Como o ESP32 lê tensão, e não resistência, utiliza-se um circuito divisor de tensão. O LDR é conectado entre o pino GPIO 9 e o Terra (GND), enquanto um potenciômetro (ajustável) conecta o GPIO 9 ao 3.3V. Isso permite calibrar o "ponto de trabalho" do sensor, ajustando a sensibilidade para ambientes mais claros ou mais escuros antes mesmo do processamento de software.3. Implementação de Bibliotecas ProprietáriasUma exigência central do projeto foi a abstenção de bibliotecas padrão do Arduino (como LiquidCrystal ou Keypad), forçando a implementação "bare-metal" dos drivers. A seguir, detalha-se a engenharia reversa e a lógica aplicada nessas implementações.3.1 Driver de Display LCD (lcd.cpp e lcd.h)O driver implementa a comunicação com o controlador HD44780 no modo de 4 bits. Este modo é econômico em pinos, utilizando apenas 4 linhas de dados (D4-D7) em vez de 8, mas aumenta a complexidade do software, pois cada byte deve ser dividido em dois nibbles (parte alta e parte baixa) enviados sequencialmente.3.1.1 Sequência de Inicialização (Soft-Reset)O LCD requer uma sequência de inicialização rígida para garantir que seu controlador interno saia de estados indeterminados, especialmente se a tensão de alimentação subir lentamente. A função initializationLCD() implementa o seguinte algoritmo baseado em tempo :Estabilização Elétrica: Aguarda 50ms após a energização.Reset por Software: Envia o comando 0x03 três vezes consecutivas.Envio 1 -> Espera 4.5ms.Envio 2 -> Espera 150µs.Envio 3 -> Espera 150µs.Esta repetição garante que, independentemente do estado anterior (modo 8 bits ou 4 bits), o LCD interprete o comando de reset corretamente.Configuração de Interface: Envia 0x02 para forçar o modo de 4 bits. A partir deste ponto, todos os comandos subsequentes devem ser enviados em dois ciclos de clock.Configuração de Operação:0x28: Define interface 4 bits, 2 linhas de texto, fonte 5x8.0x0C: Liga o display (Display ON), desliga o cursor, desliga o pisca.0x01: Limpa o display (Clear Display). Este comando é crítico e exige um tempo de processamento maior (>2ms) pelo controlador do LCD.0x06: Define o modo de entrada (Entry Mode), fazendo o cursor incrementar para a direita automaticamente após cada caractere escrito.3.1.2 Primitiva de Comunicação: write4bits e EnablePulseA função write4bits(uint8_t value) é a camada física do driver. Ela não envia o byte inteiro, mas sim o estado dos 4 bits inferiores da variável value para os pinos GPIO 15, 16, 17 e 18.O "segredo" da comunicação está na função EnablePulse(), que gera o sinal de strobe necessário para o HD44780 ler os dados:Pino E (Enable) vai para nível BAIXO.Pequeno delay (1µs).Pino E vai para nível ALTO (borda de subida prepara a leitura).Delay de pulso (1µs).Pino E vai para nível BAIXO (borda de descida efetiva a gravação dos dados no registrador do LCD).Delay de guarda (100µs) para permitir que o LCD processe o dado.3.2 Driver de Teclado Matricial (teclado.cpp e teclado.h)O teclado matricial 3x4 não possui componentes ativos; é uma grade de chaves. O driver deve "descobrir" qual tecla foi pressionada energizando colunas e lendo linhas (ou vice-versa). O código implementa o algoritmo de Varredura (Scanning).3.2.1 Algoritmo de VarreduraA função teclado_varredura opera ciclicamente:O sistema define todas as Colunas como saídas e todas as Linhas como entradas (com resistores de pull-down ou pull-up configurados internamente ou externamente, conforme o circuito da Figura 2 do PDF ).Iteração: O algoritmo ativa uma Coluna por vez (nível lógico ALTO).Verificação: Imediatamente após ativar uma coluna, o microcontrolador lê o estado das 4 Linhas.Se a Linha X estiver em nível ALTO enquanto a Coluna Y está ativa, significa que a chave na interseção (Linha X, Coluna Y) está fechada.Mapeamento: O par (Linha, Coluna) é convertido em um caractere ASCII correspondente (ex: Linha 1 + Coluna 1 = '1'; Linha 4 + Coluna 3 = '#') através de uma tabela de busca (Lookup Table).3.2.2 Tratamento de Repique (Debouncing)Chaves mecânicas sofrem de "repique" (bounce) — oscilações rápidas no sinal elétrico no momento do contato. O driver implementa um debounce por software definido pela constante DEBOUNCE_MS (100ms).Ao detectar uma tecla pressionada, o sistema registra o tempo.Qualquer alteração de estado subsequente dentro da janela de 100ms é ignorada.Isso impede que um único toque seja interpretado como múltiplos toques (ex: digitar "1" e aparecer "111").4. Uso de PWM e Controle de Iluminação AdaptativaO subsistema de iluminação adaptativa demonstra o uso de controle em malha aberta com feedback ambiental. O objetivo é ajustar o brilho do display LCD (Backlight) inversamente proporcional à luz ambiente: ambientes escuros requerem menos brilho (para não ofuscar), e ambientes claros requerem mais brilho (para vencer o reflexo). Nota: O código implementa uma lógica onde "Duty Cycle alto = Menos Brilho", indicando que o circuito controla o cátodo do LED ou usa um transistor inversor.4.1 Configuração do Periférico LEDC (ESP32)O ESP32-S3 não usa a função analogWrite tradicional do Arduino, mas sim o periférico LEDC (LED Control), projetado para gerar PWM via hardware sem ocupar a CPU.
+As configurações adotadas em pwm.h e pwm.cpp são :Frequência: 5000 Hz. Uma frequência alta o suficiente para evitar a percepção de cintilação (flicker) pelo olho humano e por câmeras.Resolução: 12 bits. Isso fornece $2^{12} = 4096$ níveis discretos de brilho, permitindo uma transição extremamente suave, muito superior aos 8 bits (255 níveis) padrão do Arduino Uno.Canal: Canal 0 do LEDC.4.2 Matemática do Controle de BrilhoA função atualizaBrilhoLCD() realiza a leitura do ADC (GPIO 9) e a converte em Duty Cycle.A fórmula de conversão utilizada é uma interpolação linear mapeada:$$Duty = \frac{(LeituraADC \times (DUTY\_MAX - DUTY\_MIN))}{4095} + DUTY\_MIN$$Onde:LeituraADC varia de 0 a 4095.DUTY_MIN é o valor de PWM para o brilho máximo (devido à lógica invertida).DUTY_MAX é o valor de PWM para o brilho mínimo.4.3 Filtragem por HisteresePara evitar que o brilho do LCD fique oscilando instavelmente quando a luz ambiente está na fronteira entre dois níveis (ruído do ADC ou sombras passageiras), o código implementa dois níveis de filtragem :Threshold de Entrada: A nova leitura do LDR só é considerada se diferir da leitura anterior em pelo menos ADC_THRESHOLD (50 unidades).$$|Leitura_{atual} - Leitura_{anterior}| > 50$$Histerese de Saída: Mesmo que a leitura mude, o PWM só é atualizado se o novo duty cycle calculado diferir do atual em mais de 30 unidades.Essa abordagem garante uma experiência de usuário "sólida", onde a iluminação só muda quando há uma alteração ambiental definitiva.5. Temporização e Interrupções: Teoria vs. PráticaO projeto especifica o uso de interrupções de tempo (timer interrupts) para evitar o bloqueio do processador principal, permitindo multitarefa cooperativa (ex: varrer o teclado enquanto controla o PWM).5.1 Análise da Implementação no Código FonteAo analisar os arquivos pwm.cpp e teclado.h, observa-se uma discrepância instrutiva entre a intenção de design e a implementação funcional.Estruturas de Interrupção Presentes: O código declara ponteiros de timer de hardware (hw_timer_t *temp) e variáveis de proteção de exclusão mútua (portMUX_TYPE timerMux). Isso indica a preparação para configurar uma interrupção de hardware que dispararia periodicamente.Lógica de Execução (Polling): No entanto, no arquivo main.cpp, as funções críticas ler_teclado() e atualizaBrilhoLCD() são chamadas diretamente dentro do laço loop(). Não há chamadas para timerAttachInterrupt ou timerAlarmWrite.5.2 Implicação TécnicaA implementação atual opera por Polling (Sondagem).Vantagem: Simplicidade de debug e determinismo sequencial.Desvantagem: Se o processador entrar em uma rotina bloqueante (como os delay(2000) usados nas mensagens de sucesso/erro do menu), o teclado deixa de responder e o brilho do LCD congela. Em um cenário real de produto, a implementação via interrupção (como sugerido pelas variáveis não utilizadas) seria obrigatória para garantir que o teclado continuasse responsivo mesmo durante animações de display.5.3 Temporização Não-Bloqueante da TrancaDiferente dos delays de interface, o controle da tranca magnética utiliza corretamente a temporização não-bloqueante baseada na função millis().Quando a senha é correta, a variável tranca_abriu recebe o valor atual de millis().O loop principal verifica constantemente:if (millis() - tranca_abriu >= tempo_tranca)Isso permite que o processador continue executando outras tarefas (como ler o LDR) enquanto a porta está destrancada, fechando-a automaticamente após o tempo configurado (padrão de 5 segundos) expirar.6. Lógica do Menu e Fluxo de OperaçãoO sistema de menu é o núcleo da interação do usuário, dividido em dois modos de operação distintos: Modo Usuário (Operacional) e Modo Administrador (Configuração).6.1 Máquina de Estados do Loop PrincipalO loop() opera como um despachante de eventos:Monitoramento: Verifica constantemente o timer da tranca e o nível de luz (LDR).Captura de Senha: Acumula dígitos em um buffer (senha_entry).Implementa mascaramento: exibe * no LCD para cada dígito.Reset Rápido: A tecla # limpa o buffer imediatamente.Validação: Ao atingir 4 dígitos ou pressionar *, compara o buffer com os vetores armazenados.verifica_senha() retorna o ID do usuário (1, 2, 3) ou 4 (Admin).6.2 Lógica do Menu Administrativo (menu_adm)Ao digitar a senha de administrador (Padrão: 0000), o sistema suspende o loop principal e entra na função menu_adm(), que possui seu próprio loop de controle.As funcionalidades são:Gerenciar Senhas (Opção 1):Alterar: O admin seleciona o Slot (1, 2, 3 ou Admin). O sistema pede a nova senha. Antes de salvar, a função senha_ja_existe() verifica todos os slots para impedir duplicidade. Se for única, grava na memória RAM.Apagar: O admin seleciona o slot de usuário. A função memset preenche o slot com \0, invalidando o acesso daquele usuário até novo cadastro.Configurar Tempo (Opção 2): Permite alterar o tempo de ativação do solenoide (0 a 999 segundos).Abertura Forçada (Opção 4): Permite ao administrador abrir a tranca instantaneamente sem sair do menu.6.3 Fluxograma Representativo (Mermaid)O diagrama abaixo ilustra o fluxo completo de decisão do firmware, desde a inicialização até os submenus administrativos.Snippet de códigoflowchart TD
+    Start() --> Init
+    Init --> IdleState{Aguardando Entrada}
+    
+    %% Tarefas de Fundo
+    IdleState -- Loop --> TaskLDR
+    TaskLDR --> TaskLock{Timer Tranca Expirou?}
+    TaskLock -- Sim --> CloseLock
+    TaskLock -- Não --> ScanKey
+    CloseLock --> ScanKey
+    
+    %% Processamento de Tecla
+    ScanKey --> KeyPressed{Tecla Pressionada?}
+    KeyPressed -- Não --> IdleState
+    KeyPressed -- Sim --> KeyType{Tipo de Tecla}
+    
+    %% Comandos Especiais
+    KeyType -- "# (Cancelar)" --> ResetBuffer
+    ResetBuffer --> IdleState
+    
+    %% Entrada de Dados
+    KeyType -- "0-9" --> Store
+    Store --> Mask
+    Mask --> CheckFull{Buffer >= 4 ou '*'}
+    CheckFull -- Não --> IdleState
+    
+    %% Validação
+    CheckFull -- Sim --> Verify
+    Verify -- Inválida --> ErrorMsg
+    ErrorMsg --> Delay3s[Espera 3s]
+    Delay3s --> ResetBuffer
+    
+    Verify -- Usuário 1/2/3 --> Unlock
+    Unlock --> SetTimer[Inicia Contagem millis]
+    SetTimer --> Welcome
+    Welcome --> IdleState
+    
+    %% Fluxo Administrador
+    Verify -- Admin --> AdminMenu]
+    
+    subgraph Menu_Administrativo
+        direction TB
+        DispMenu
+        DispMenu --> InputAdm{Entrada}
+        
+        InputAdm -- 1 --> SubPass
+        SubPass -- 1 --> ChangePass
+        ChangePass --> CheckDup{Duplicada?}
+        CheckDup -- Sim --> MsgDup[Erro: Já Existe]
+        CheckDup -- Não --> SaveMem
+        
+        SubPass -- 2 --> ErasePass
+        
+        InputAdm -- 2 --> ConfigTime
+        InputAdm -- 4 --> ForceOpen
+        InputAdm -- 3 --> ExitAdm
+    end
+    
+    ExitAdm --> ResetBuffer
+7. Manual de Operação e Referência de Usuário7.1 Credenciais Padrão de FábricaO sistema inicia com as seguintes senhas pré-gravadas na memória de programa :Usuário 1 (Miguel): 1234Usuário 2 (Lorenzo): 4321Usuário 3 (Tais): 5678Administrador: 00007.2 Guia de Uso (Usuário Final)Estado de Repouso: O display exibirá "Senha:". O brilho se ajustará automaticamente à luz da sala.Acesso: Digite a senha de 4 dígitos. Pressione * para confirmar (opcional se digitar 4 números).Erro: Se errar a digitação, pressione # para limpar e começar de novo.Sucesso: O display mostrará o nome do usuário, a tranca emitirá um "clique" (solenoide atracando) e permanecerá aberta por 5 segundos (padrão).7.3 Guia de Configuração (Administrador)Para entrar no modo de configuração, digite a senha de Admin (0000).7.3.1 Alterar SenhasNo menu principal, pressione 1 (Senha).Escolha 1 (Alterar).Escolha quem alterar: 1, 2, 3 (Usuários) ou * (Admin - verifique a tecla correspondente no display).Digite a nova senha de 4 números.Nota: O sistema recusará senhas que já estejam em uso por outro usuário.7.3.2 Remover Acesso de UsuárioNo menu principal, pressione 1 (Senha).Escolha 2 (Apagar).Selecione o usuário (1, 2 ou 3).O display confirmará a exclusão. A senha antiga daquele usuário não funcionará mais.7.3.3 Ajustar Tempo de AberturaNo menu principal, pressione 2 (Tranca).Digite o tempo desejado em segundos (ex: 10 para dez segundos).Pressione * para salvar.8. ConclusãoEste projeto consolida a aplicação prática de conceitos fundamentais de sistemas embarcados. A arquitetura de hardware demonstra preocupação com a segurança elétrica (isolamento e proteção de back-EMF), enquanto o firmware exibe técnicas de escrita de drivers de baixo nível, gestão de estados e processamento de sinais. A implementação proprietária dos drivers de LCD e Teclado, em vez do uso de bibliotecas prontas, garante o domínio completo sobre os tempos de execução do microcontrolador. O sistema de iluminação adaptativa adiciona uma camada de sofisticação e eficiência energética, tornando o protótipo funcionalmente próximo de um produto comercial final.As limitações identificadas (como a gestão de senhas em memória volátil, que se perdem ao desligar a energia, e o uso de polling em vez de interrupções completas para I/O) servem como oportunidades claras para evoluções futuras do firmware, visando persistência de dados (NVS) e multitarefa preemptiva (FreeRTOS).
